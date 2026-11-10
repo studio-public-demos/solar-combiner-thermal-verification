@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Solar Combiner Box — Thermal Verification &amp; 3D Thermal Visualization | NebulaCloud Studio</title>
+<meta name="description" content="Evidence-led enclosure temperature-rise verification (IEC TR 60890 / IEC 61439-1) for a solar DC combiner box, with an interactive 3D thermal map. A NebulaCloud Studio project showcase.">
+<style>
+  :root{
+    --bg:#F8FAFC; --bg2:#0F172A; --ink:#0F172A; --soft:#475569; --mut:#94A3B8;
+    --accent:#1D4ED8; --accent2:#2563EB; --sky:#0EA5E9; --pale:#EFF6FF;
+    --border:#E2E8F0; --ok:#059669; --warn:#D97706; --bad:#DC2626;
+    --mono:'JetBrains Mono',Consolas,monospace;
+    --f:'Inter','Segoe UI',system-ui,-apple-system,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f);line-height:1.65;-webkit-font-smoothing:antialiased}
+  a{color:var(--accent);text-decoration:none}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 22px}
+  section{padding:64px 0}
+  .eyebrow{display:inline-block;font-size:.7rem;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--accent);margin-bottom:12px}
+  h2{font-size:clamp(1.5rem,3vw,2rem);line-height:1.2;margin:0 0 14px;letter-spacing:.01em}
+  h3{font-size:1.15rem;margin:0 0 8px}
+  .sub{color:var(--soft);font-size:1.02rem;max-width:720px;margin:0 0 8px}
+  .lead{color:var(--soft);font-size:1.05rem;max-width:760px;line-height:1.8}
+
+  /* notice */
+  .notice{background:var(--bg2);color:#94A3B8;font-size:.82rem;padding:12px 22px;text-align:center}
+  .notice b{color:#E2E8F0}
+
+  nav{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+  .nav-in{max-width:1080px;margin:0 auto;padding:0 22px;height:60px;display:flex;align-items:center;gap:18px}
+  .nav-logo{font-weight:700;letter-spacing:.02em}
+  .nav-links{flex:1;display:flex;gap:2px;justify-content:center}
+  .nav-links a{font-size:.85rem;color:var(--soft);padding:7px 12px;border-radius:6px;font-weight:500}
+  .nav-links a:hover{color:var(--accent);background:var(--pale)}
+  .nav-cta{font-size:.8rem;font-weight:600;color:#fff;background:var(--accent);padding:8px 16px;border-radius:7px;white-space:nowrap}
+
+  /* hero */
+  .hero{background:linear-gradient(160deg,#EFF6FF 0%,#F8FAFC 55%,#EEF2FF 100%);border-bottom:1px solid var(--border);padding:64px 0 48px}
+  .hero-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:36px;align-items:center}
+  .hero h1{font-size:clamp(1.9rem,4.5vw,2.9rem);line-height:1.15;margin:0 0 14px;letter-spacing:.01em}
+  .hero h1 .acc{background:linear-gradient(90deg,#1E3A8A,#2563EB);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent}
+  .badges{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0}
+  .badge{font-size:.72rem;font-weight:600;padding:4px 12px;border-radius:20px;background:#fff;border:1px solid var(--border)}
+  .badge.blue{background:var(--pale);color:var(--accent);border-color:#BFDBFE}
+  .hero-stats{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:22px}
+  .stat{background:#fff;border:1px solid var(--border);border-radius:12px;padding:16px 18px}
+  .stat .v{font-size:1.6rem;font-weight:700;color:var(--accent);font-family:var(--mono)}
+  .stat .l{font-size:.72rem;color:var(--soft);text-transform:uppercase;letter-spacing:.05em;margin-top:2px}
+  .hero-card{background:var(--bg2);border-radius:16px;padding:26px;color:#E2E8F0;box-shadow:0 20px 50px rgba(15,23,42,.25)}
+  .hero-card .t{font-size:.72rem;text-transform:uppercase;letter-spacing:.1em;color:#64748B;margin-bottom:12px}
+  .temp-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #1E293B;font-size:.9rem}
+  .temp-row:last-child{border-bottom:none}
+  .temp-row .tt{font-family:var(--mono);font-weight:700}
+
+  /* cards / grid */
+  .grid{display:grid;gap:18px}
+  .cols2{grid-template-columns:repeat(2,1fr)}
+  .cols3{grid-template-columns:repeat(3,1fr)}
+  .card{background:#fff;border:1.5px solid var(--border);border-radius:14px;padding:24px}
+  .card h3{margin-top:0}
+  .feature{display:flex;gap:12px}
+  .feature .ic{font-size:1.4rem;flex-shrink:0}
+  .feature p{margin:0;color:var(--soft);font-size:.9rem}
+
+  table{width:100%;border-collapse:collapse;font-size:.9rem;background:#fff;border:1px solid var(--border);border-radius:12px;overflow:hidden}
+  th,td{padding:10px 14px;text-align:left;border-bottom:1px solid var(--border)}
+  th{background:#FAFBFC;font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;color:var(--soft)}
+  td.num{font-family:var(--mono);text-align:right;font-weight:600}
+  tr:last-child td{border-bottom:none}
+  .chip{display:inline-block;padding:2px 10px;border-radius:20px;font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.03em}
+  .chip.blocked{background:#FEE2E2;color:#B91C1C}
+  .chip.assumed{background:#FEF3C7;color:#92400E}
+  .chip.screening{background:#EFF6FF;color:#1D4ED8}
+
+  /* demo iframes */
+  .demo-frame{background:#fff;border:1.5px solid var(--border);border-radius:14px;overflow:hidden}
+  .demo-head{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid var(--border)}
+  .demo-head h3{margin:0;font-size:1rem}
+  .demo-head a{font-size:.8rem;font-weight:600}
+  iframe{display:block;width:100%;border:0;height:640px;background:#fff}
+
+  /* architecture svg */
+  .arch{background:#fff;border:1px solid var(--border);border-radius:14px;padding:10px}
+  .arch svg{display:block;width:100%;height:auto}
+
+  .lim{background:#FFFBEB;border:1px solid #FDE68A;border-radius:14px;padding:22px}
+  .lim ul{margin:8px 0 0;padding-left:20px;color:#92400E}
+  .lim li{margin:6px 0;font-size:.9rem}
+
+  .cta{background:linear-gradient(135deg,#1E3A8A,#2563EB);color:#fff;border-radius:18px;padding:44px;text-align:center}
+  .cta h2{color:#fff}
+  .cta p{color:#DBEAFE;margin:0 auto 22px;max-width:640px}
+  .cta .btn{display:inline-block;background:#fff;color:#1E3A8A;font-weight:700;padding:13px 26px;border-radius:9px;margin:0 6px}
+
+  footer{background:var(--bg2);color:#94A3B8;padding:40px 0;text-align:center;font-size:.85rem}
+  footer a{color:var(--sky);font-weight:600}
+
+  @media(max-width:860px){
+    .hero-grid{grid-template-columns:1fr}
+    .cols2,.cols3{grid-template-columns:1fr}
+    .nav-links{display:none}
+    iframe{height:520px}
+  }
+</style>
+</head>
+<body>
+
+<div class="notice">
+  <b>Notice</b> — This is a public project showcase created using NebulaCloud Studio. The proprietary source code, implementation details, prompts, workflows, datasets, infrastructure, and deployment configuration are intentionally not included.
+</div>
+
+<nav>
+  <div class="nav-in">
+    <span class="nav-logo">◈ Solar Thermal Case Study</span>
+    <div class="nav-links">
+      <a href="#problem">Problem</a>
+      <a href="#solution">Solution</a>
+      <a href="#demo">Live Demo</a>
+      <a href="#outputs">Outputs</a>
+      <a href="#features">Features</a>
+      <a href="#limitations">Limitations</a>
+    </div>
+    <a class="nav-cta" href="https://nebulacloud.studio" target="_blank">nebulacloud.studio</a>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <span class="eyebrow">Electrical Thermal Engineering · Showcase</span>
+      <h1>Solar Combiner Box<br><span class="acc">Thermal Verification</span> &amp; 3D Thermal Map</h1>
+      <p class="lead">Evidence-led enclosure temperature-rise verification by calculation (IEC TR 60890 / IEC 61439-1) for a 16-input IP66 FRP string combiner box — delivered as an interactive report and a 3D thermal visualization.</p>
+      <div class="badges">
+        <span class="badge blue">Solar PV</span>
+        <span class="badge blue">DC Combiner Box</span>
+        <span class="badge blue">IEC TR 60890</span>
+        <span class="badge blue">IEC 61439-1</span>
+        <span class="badge blue">3D Thermal Map</span>
+      </div>
+    </div>
+    <div class="hero-card">
+      <div class="t">Verified results · 50 °C ambient</div>
+      <div class="temp-row"><span>External ambient</span><span class="tt">50.0 °C</span></div>
+      <div class="temp-row"><span>Internal air — bottom / mid / top</span><span class="tt">50.0 / 63.2 / 66.8 °C</span></div>
+      <div class="temp-row"><span>Bus bar</span><span class="tt">66.9 °C</span></div>
+      <div class="temp-row"><span>Fuse links (16 × 30A gPV)</span><span class="tt">≈75 °C</span></div>
+      <div class="temp-row"><span>Solar cables</span><span class="tt">79.2 °C</span></div>
+      <div class="temp-row"><span>Monitoring device</span><span class="tt">83.2 °C</span></div>
+      <div class="temp-row"><span>Disconnect switch (2-pole)</span><span class="tt">94.4 °C</span></div>
+      <div class="hero-stats" style="margin-top:18px">
+        <div class="stat"><div class="v">64.6 W</div><div class="l">Total loss</div></div>
+        <div class="stat"><div class="v">BLOCKED</div><div class="l">Verdict (evidence-led)</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="problem">
+  <div class="wrap">
+    <span class="eyebrow">01 · Business Problem</span>
+    <h2>Assemblies need defensible thermal inputs — not a guessed temperature</h2>
+    <p class="lead">Solar DC combiner boxes concentrate fuse links, copper busbars, disconnectors and monitoring electronics inside a sealed IP66 enclosure. At a 50&nbsp;°C site ambient, the margin to the 85&nbsp;°C rating of typical components is narrow. Loss values arrive from separate datasheets and engineering assumptions, and an FRP enclosure does not dissipate heat like the sheet-steel enclosures the standard method assumes. A full laboratory type-test is costly — so teams need a calculation they can review before procurement.</p>
+    <div class="grid cols3" style="margin-top:26px">
+      <div class="card"><h3>Input fragmentation</h3><p style="margin:0;color:var(--soft);font-size:.92rem">Fuse, cabling, switch and auxiliary losses come from separate sources, each with different evidence quality.</p></div>
+      <div class="card"><h3>Material sensitivity</h3><p style="margin:0;color:var(--soft);font-size:.92rem">IP66 FRP walls dissipate less heat than sheet steel, raising the internal temperature rise for the same loss.</p></div>
+      <div class="card"><h3>Reviewable output</h3><p style="margin:0;color:var(--soft);font-size:.92rem">Teams need a loss register, temperature results and missing-data flags — not an unjustified compliance badge.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="solution" style="background:#fff;border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
+  <div class="wrap">
+    <span class="eyebrow">02 · Solution Overview</span>
+    <h2>A structured, evidence-led thermal workflow</h2>
+    <p class="lead">Turn a bill of materials, an enclosure definition and an ambient condition into a reviewable thermal verdict — with every number tagged by evidence quality.</p>
+    <div class="grid cols3" style="margin-top:26px">
+      <div class="card"><h3>1 · Loss register</h3><p style="margin:0;color:var(--soft);font-size:.92rem">Every heat source listed with its power loss, classified as published, assumed or missing.</p></div>
+      <div class="card"><h3>2 · Enclosure heat transfer</h3><p style="margin:0;color:var(--soft);font-size:.92rem">Effective cooling surface from dimensions and installation, plus an FRP wall-conduction correction.</p></div>
+      <div class="card"><h3>3 · Air temperature rise</h3><p style="margin:0;color:var(--soft);font-size:.92rem">IEC TR 60890 non-ventilated curve for internal air at bottom, mid-height and top.</p></div>
+      <div class="card"><h3>4 · Component self-heating</h3><p style="margin:0;color:var(--soft);font-size:.92rem">First-order P/(h·A) estimate added to the local air temperature for each component.</p></div>
+      <div class="card"><h3>5 · Verification gates</h3><p style="margin:0;color:var(--soft);font-size:.92rem">The verdict is <b>blocked</b> when the BOM is incomplete or losses are not datasheet-backed.</p></div>
+      <div class="card"><h3>6 · 3D visualization</h3><p style="margin:0;color:var(--soft);font-size:.92rem">A thermal map colours every component on a jet scale for rapid design review.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="demo">
+  <div class="wrap">
+    <span class="eyebrow">03 · Live Demo</span>
+    <h2>Interactive demonstrations</h2>
+    <p class="lead">Fully client-side — no backend, no sign-up, no data leaves the browser. Open either demo, interact, and review the evidence trail.</p>
+
+    <div class="demo-frame" style="margin-top:28px">
+      <div class="demo-head">
+        <h3>Thermal calculation report (IEC TR 60890)</h3>
+        <a href="thermal-report.html" target="_blank">Open in new tab ↗</a>
+      </div>
+      <iframe src="thermal-report.html" title="Thermal calculation report"></iframe>
+    </div>
+
+    <div class="demo-frame" style="margin-top:28px">
+      <div class="demo-head">
+        <h3>3D thermal map (drag to orbit · scroll to zoom · hover for values)</h3>
+        <a href="index.html" target="_blank">Open in new tab ↗</a>
+      </div>
+      <iframe src="index.html" title="3D thermal map"></iframe>
+    </div>
+  </div>
+</section>
+
+<section id="video" style="background:#fff;border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
+  <div class="wrap">
+    <span class="eyebrow">03b · Demo Video</span>
+    <h2>Watch it in action</h2>
+    <div class="demo-frame" style="margin-top:20px">
+      <video controls playsinline preload="metadata" poster="assets/poster.png" style="display:block;width:100%;background:#0F172A" aria-label="Solar combiner box 3D thermal map demo video">
+        <source src="assets/videos/demo.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+      </video>
+    </div>
+  </div>
+</section>
+
+<section id="outputs" style="background:#fff;border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
+  <div class="wrap">
+    <span class="eyebrow">04 · Generated Outputs</span>
+    <h2>What the application produces</h2>
+    <table style="margin-top:20px">
+      <thead><tr><th>Output</th><th>Value</th><th>Evidence</th></tr></thead>
+      <tbody>
+        <tr><td>Total power loss</td><td class="num">64.6 W</td><td><span class="chip assumed">assumed</span></td></tr>
+        <tr><td>Effective cooling surface Ae</td><td class="num">1.929 m²</td><td><span class="chip screening">calculated</span></td></tr>
+        <tr><td>Internal air — bottom / mid / top</td><td class="num">50.0 / 63.2 / 66.8 °C</td><td><span class="chip screening">calculated</span></td></tr>
+        <tr><td>FRP correction factor</td><td class="num">1.077</td><td><span class="chip screening">engineering adj.</span></td></tr>
+        <tr><td>Hottest component (disconnect switch)</td><td class="num">94.4 °C</td><td><span class="chip screening">screening</span></td></tr>
+        <tr><td>Verification verdict</td><td class="num">—</td><td><span class="chip blocked">BLOCKED</span></td></tr>
+      </tbody>
+    </table>
+    <p style="color:var(--mut);font-size:.82rem;margin-top:14px">The verdict is intentionally <b>blocked</b> because the sample losses are "approx." (0&nbsp;% datasheet-backed). This is the workflow working correctly: it refuses to print a false pass.</p>
+    <div class="grid cols2" style="margin-top:22px">
+      <img src="assets/screenshots/thermal-report.png" alt="Component and internal-air temperature chart" style="width:100%;border-radius:12px;border:1px solid var(--border)">
+      <img src="assets/screenshots/thermal-3d.png" alt="3D component temperature representation" style="width:100%;border-radius:12px;border:1px solid var(--border)">
+    </div>
+  </div>
+</section>
+
+<section id="features">
+  <div class="wrap">
+    <span class="eyebrow">05 · Key Features</span>
+    <h2>Capabilities demonstrated</h2>
+    <div class="grid cols2" style="margin-top:24px">
+      <div class="card feature"><div class="ic">🧾</div><div><h3>Vendor-neutral loss register</h3><p>Any component with a known watt loss, regardless of manufacturer, tagged by evidence quality.</p></div></div>
+      <div class="card feature"><div class="ic">🌡️</div><div><h3>IEC TR 60890 calculation</h3><p>Internal air rise at bottom, mid-height and top, with enclosure constant k, distribution factor c and exponent.</p></div></div>
+      <div class="card feature"><div class="ic">🧱</div><div><h3>FRP material correction</h3><p>First-order wall-conduction adjustment against the sheet-steel reference (factor 1.077).</p></div></div>
+      <div class="card feature"><div class="ic">🔬</div><div><h3>Component self-heating</h3><p>Per-component P/(h·A) estimate layered onto the local air temperature.</p></div></div>
+      <div class="card feature"><div class="ic">🛡️</div><div><h3>Design-verification gates</h3><p>Blocks a "verified" verdict when essential evidence is absent — no false pass.</p></div></div>
+      <div class="card feature"><div class="ic">🧊</div><div><h3>Interactive 3D thermal map</h3><p>Jet colour scale, orbit/zoom, hover tooltips, labels, legend and auto-rotate.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="architecture" style="background:#fff;border-top:1px solid var(--border)">
+  <div class="wrap">
+    <span class="eyebrow">06 · Architecture (Conceptual Only)</span>
+    <h2>User journey, not implementation</h2>
+    <div class="arch" style="margin-top:20px">
+      <svg viewBox="0 0 980 220" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Conceptual workflow diagram">
+        <defs>
+          <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+            <path d="M0 0L10 5L0 10z" fill="#94A3B8"/>
+          </marker>
+        </defs>
+        <g font-family="Segoe UI, sans-serif">
+          <rect x="10" y="70" width="200" height="80" rx="12" fill="#EFF6FF" stroke="#BFDBFE"/>
+          <text x="110" y="100" text-anchor="middle" font-size="13" font-weight="700" fill="#1D4ED8">Inputs</text>
+          <text x="110" y="122" text-anchor="middle" font-size="11" fill="#475569">BOM · enclosure</text>
+          <text x="110" y="138" text-anchor="middle" font-size="11" fill="#475569">material · ambient</text>
+
+          <rect x="280" y="55" width="250" height="110" rx="12" fill="#F5F3FF" stroke="#DDD6FE"/>
+          <text x="405" y="82" text-anchor="middle" font-size="13" font-weight="700" fill="#6D28D9">Processing</text>
+          <text x="405" y="104" text-anchor="middle" font-size="11" fill="#475569">loss register → IEC 60890</text>
+          <text x="405" y="120" text-anchor="middle" font-size="11" fill="#475569">air rise → FRP correction</text>
+          <text x="405" y="136" text-anchor="middle" font-size="11" fill="#475569">→ component self-heating</text>
+          <text x="405" y="152" text-anchor="middle" font-size="11" fill="#475569">→ verification gates</text>
+
+          <rect x="600" y="70" width="200" height="80" rx="12" fill="#ECFDF5" stroke="#A7F3D0"/>
+          <text x="700" y="100" text-anchor="middle" font-size="13" font-weight="700" fill="#047857">Outputs</text>
+          <text x="700" y="122" text-anchor="middle" font-size="11" fill="#475569">calculation report</text>
+          <text x="700" y="138" text-anchor="middle" font-size="11" fill="#475569">3D thermal map</text>
+
+          <line x1="210" y1="110" x2="278" y2="110" stroke="#94A3B8" stroke-width="2" marker-end="url(#arr)"/>
+          <line x1="530" y1="110" x2="598" y2="110" stroke="#94A3B8" stroke-width="2" marker-end="url(#arr)"/>
+        </g>
+      </svg>
+    </div>
+    <p style="color:var(--mut);font-size:.82rem;margin-top:12px">This is a conceptual user journey only — it is not an implementation, API, or service-topology disclosure.</p>
+  </div>
+</section>
+
+<section id="limitations">
+  <div class="wrap">
+    <span class="eyebrow">07 · Technical Scope &amp; Limitations</span>
+    <h2>Responsible boundaries</h2>
+    <div class="lim">
+      <ul>
+        <li>Verification is <b>by calculation</b> (IEC TR 60890, referenced by IEC 61439-1) — not a laboratory type-test and not a certified compliance statement.</li>
+        <li>Table-driven factors follow the published IEC method structure and must be reconciled against the licensed standard text for certified use.</li>
+        <li>IEC TR 60890 is calibrated for sheet-steel; the FRP correction (1.077) is a first-order engineering adjustment, not a certified factor.</li>
+        <li>Component temperatures are P/(h·A) screening estimates with assumed cooling areas; certified values require manufacturer device thermal data.</li>
+        <li>The 3D thermal map is an illustrative procedural approximation — not a measured thermal image or CFD result.</li>
+        <li>The sample BOM is illustrative and must not be used for real design decisions.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="attribution" style="background:#fff;border-top:1px solid var(--border)">
+  <div class="wrap">
+    <span class="eyebrow">08 · Attribution</span>
+    <h2>Every reference can be checked</h2>
+    <table style="margin-top:20px">
+      <thead><tr><th>Reference</th><th>Usage</th></tr></thead>
+      <tbody>
+        <tr><td>IEC TR 60890 / IEC 61439-1</td><td>Referenced standards (© IEC); not reproduced in this repository.</td></tr>
+        <tr><td>ETI gPV fuse links</td><td>Published dissipation endpoints used to cross-check fuse self-heating.</td></tr>
+        <tr><td>Trinity Touch 16-in-1 combiner</td><td>Public product specification used as a reference product.</td></tr>
+        <tr><td>Three.js (MIT)</td><td>WebGL library for the 3D thermal visualisation.</td></tr>
+      </tbody>
+    </table>
+    <p style="color:var(--mut);font-size:.82rem;margin-top:12px">Full details in <a href="ATTRIBUTIONS.md">ATTRIBUTIONS.md</a>. This showcase has not been commissioned or endorsed by the referenced standards bodies or manufacturers.</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="cta">
+      <h2>Bring an engineering problem</h2>
+      <p>Working with switchgear enclosures, solar combiner boxes, or other assemblies that need defensible thermal verification? Explore the live demos, then discuss a private engineering engagement.</p>
+      <a class="btn" href="https://studio-public-demos.github.io/" target="_blank">Explore the portfolio</a>
+      <a class="btn" href="https://nebulacloud.studio" target="_blank">Contact NebulaCloud Studio</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p style="margin:0 0 6px">Built with <a href="https://nebulacloud.studio">NebulaCloud Studio</a> · Engineering Execution Platform</p>
+  <p style="margin:0;font-size:.75rem">IP-protected showcase — outcome published, implementation private.</p>
+</footer>
+
+</body>
+</html>

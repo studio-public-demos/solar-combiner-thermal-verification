@@ -47,18 +47,25 @@ The result is a verification **by calculation**, clearly labelled as such — ne
 
 ## Live Demo
 
-Two interactive, fully client-side demonstrations ship with this showcase (no backend, no data leaves the browser):
+[![Open live demo](assets/social-preview.png)](https://studio-public-demos.github.io/solar-combiner-thermal-verification/)
 
-- **[Thermal calculation report](demo/thermal-report.html)** — the IEC TR 60890 calculation, loss register, FRP material correction, component temperatures and verification gates.
-- **[3D thermal map](demo/thermal-3d.html)** — an interactive Three.js scene of the enclosure with components coloured by temperature; drag to orbit, scroll to zoom, hover for values.
+The live demo opens the interactive **3D thermal map** — the primary working product. The other deliverables are one click away:
 
-Open either file directly in a modern browser. No installation, no sign-up, no telemetry.
+| Working product | URL |
+|---|---|
+| **3D thermal map** (primary) | https://studio-public-demos.github.io/solar-combiner-thermal-verification/ |
+| Thermal calculation report | https://studio-public-demos.github.io/solar-combiner-thermal-verification/thermal-report.html |
+| Case study | https://studio-public-demos.github.io/solar-combiner-thermal-verification/case-study.html |
+
+Fully client-side; no backend, no sign-up, no data leaves the browser.
 
 ---
 
 ## Demo Video
 
-A walkthrough video is available on request from the project owner. (No video file is bundled in this public showcase.)
+[![Demo video — 3D thermal map](assets/poster.png)](assets/videos/demo.mp4)
+
+A walkthrough of the 3D thermal map is bundled as [`assets/videos/demo.mp4`](assets/videos/demo.mp4) (rotating thermal scene with the component temperature scale).
 
 ---
 

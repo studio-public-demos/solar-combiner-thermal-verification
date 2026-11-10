@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SCB Thermal Verification — IEC TR 60890 / IEC 61439-1 (FRP)</title>
+<style>
+  :root{
+    --bg:#F8FAFC; --card:#FFFFFF; --ink:#0F172A; --soft:#475569; --mut:#94A3B8;
+    --accent:#1D4ED8; --accent2:#2563EB; --pale:#EFF6FF; --border:#E2E8F0;
+    --ok:#059669; --warn:#D97706; --bad:#DC2626; --mono:'JetBrains Mono',Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:'Segoe UI',system-ui,-apple-system,sans-serif;line-height:1.6}
+  .wrap{max-width:980px;margin:0 auto;padding:32px 20px 64px}
+  .hero{background:linear-gradient(135deg,#1E3A8A,#2563EB);color:#fff;border-radius:14px;padding:28px 30px;margin-bottom:24px}
+  .hero h1{margin:0 0 6px;font-size:1.5rem}
+  .hero p{margin:0;opacity:.9;font-size:.92rem}
+  .card{background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:22px 24px;margin-bottom:18px;box-shadow:0 1px 3px rgba(15,23,42,.05)}
+  h2{font-size:1.02rem;margin:0 0 14px;letter-spacing:.01em;text-transform:uppercase;color:var(--accent);border-bottom:1px solid var(--border);padding-bottom:8px}
+  table{width:100%;border-collapse:collapse;font-size:.88rem}
+  th,td{padding:8px 10px;text-align:left;border-bottom:1px solid var(--border);vertical-align:top}
+  th{color:var(--soft);font-weight:600;font-size:.78rem;text-transform:uppercase;letter-spacing:.04em;background:#FAFBFC}
+  td.num,th.num{text-align:right;font-family:var(--mono);font-size:.85rem}
+  .chip{display:inline-block;padding:2px 10px;border-radius:20px;font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.03em}
+  .published{background:#ECFDF5;color:#047857}.assumed{background:#FEF3C7;color:#92400E}.missing{background:#FEE2E2;color:#B91C1C}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+  .metric{background:var(--pale);border:1px solid #DBEAFE;border-radius:10px;padding:14px}
+  .metric .v{font-size:1.35rem;font-weight:700;color:var(--accent);font-family:var(--mono)}
+  .metric .l{font-size:.7rem;color:var(--soft);text-transform:uppercase;letter-spacing:.04em;margin-top:2px}
+  .verdict{border-radius:10px;padding:16px 18px;margin-bottom:16px;font-weight:600}
+  .verdict.blocked{background:#FEF2F2;border:1.5px solid #FECACA;color:#B91C1C}
+  .gate{display:flex;gap:10px;padding:10px 12px;border:1px solid var(--border);border-radius:8px;margin-bottom:8px}
+  .gate .ico{font-weight:700;width:22px}
+  .gate.ok .ico{color:var(--ok)} .gate.no .ico{color:var(--bad)}
+  .g-detail{font-size:.8rem;color:var(--soft)}
+  .note{font-size:.78rem;color:var(--soft);background:#FAFBFC;border-left:3px solid var(--mut);padding:10px 12px;border-radius:0 6px 6px 0;margin-top:10px}
+  .warn{font-size:.78rem;color:#92400E;background:#FFFBEB;border-left:3px solid var(--warn);padding:10px 12px;border-radius:0 6px 6px 0;margin-top:10px}
+  ul{margin:6px 0;padding-left:20px;font-size:.84rem;color:var(--soft)}
+  footer{text-align:center;padding:18px;opacity:.55;font-size:11px;color:#666}
+  footer a{color:#3b82f6;text-decoration:none}
+  .muted{color:var(--mut)}
+  .sub{font-size:.8rem;color:var(--soft)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="hero">
+    <h1>Solar String Combiner Box — Thermal Verification by Calculation</h1>
+    <p>IEC TR 60890 / IEC 61439-1 · IP66 FRP enclosure (25 % glass, 3.5 mm wall) · external ambient 50&nbsp;°C</p>
+  </div>
+
+  <div class="card">
+    <h2>Inputs</h2>
+    <div class="grid">
+      <div class="metric"><div class="v">241.3 A</div><div class="l">Combined current (16 × 15.08 A)</div></div>
+      <div class="metric"><div class="v">16 + 1</div><div class="l">Input strings (spare)</div></div>
+      <div class="metric"><div class="v">64.6 W</div><div class="l">Total power loss</div></div>
+      <div class="metric"><div class="v">850×700×300</div><div class="l">Enclosure (mm)</div></div>
+      <div class="metric"><div class="v">50 °C</div><div class="l">External ambient</div></div>
+      <div class="metric"><div class="v">IP66 · FRP</div><div class="l">Sealed, 3.5 mm wall</div></div>
+    </div>
+    <div class="note">All loss values are <b>approximate</b> (hand-estimated), not datasheet-backed. IP66 confirms a <b>sealed, non-ventilated</b> enclosure (no forced ventilation) — consistent with the non-ventilated IEC 60890 curve.</div>
+  </div>
+
+  <div class="card">
+    <h2>Loss Register — by evidence quality</h2>
+    <table>
+      <thead><tr><th>Component</th><th class="num">Qty</th><th class="num">Unit W</th><th class="num">Total W</th><th>Evidence</th></tr></thead>
+      <tbody>
+        <tr><td>Disconnect switch 400 A (2-pole) @ 241.2 A</td><td class="num">1</td><td class="num">15.60</td><td class="num">15.60</td><td><span class="chip assumed">assumed</span></td></tr>
+        <tr><td>Fuse link 30 A gPV @ 15.08 A (50 % In)</td><td class="num">16</td><td class="num">1.75</td><td class="num">28.00</td><td><span class="chip assumed">assumed</span></td></tr>
+        <tr><td>Bus bar (Cu)</td><td class="num">1</td><td class="num">3.00</td><td class="num">3.00</td><td><span class="chip assumed">assumed</span></td></tr>
+        <tr><td>Solar cable (16 input runs)</td><td class="num">1</td><td class="num">16.00</td><td class="num">16.00</td><td><span class="chip assumed">assumed</span></td></tr>
+        <tr><td>Monitoring device</td><td class="num">1</td><td class="num">2.00</td><td class="num">2.00</td><td><span class="chip assumed">assumed</span></td></tr>
+      </tbody>
+      <tfoot>
+        <tr><td colspan="3" style="text-align:right" class="muted">Published 0 W · Assumed 64.6 W · Missing 0 lines</td>
+        <td class="num"><strong>64.60 W</strong></td><td></td></tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>Enclosure Heat Transfer — FRP Wall Correction</h2>
+    <p class="sub">IEC TR 60890 is calibrated for <b>sheet-steel</b> enclosures (reference U ≈ 5.5 W/m²·K). FRP has a much lower thermal conductivity, so the wall adds thermal resistance and the internal temperature rise is higher for the same loss.</p>
+    <table>
+      <thead><tr><th>Parameter</th><th class="num">Value</th></tr></thead>
+      <tbody>
+        <tr><td>Wall thickness t</td><td class="num">3.5 mm</td></tr>
+        <tr><td>FRP thermal conductivity k (polyester + 25 % glass)</td><td class="num">0.25 W/(m·K)  (range 0.20–0.35)</td></tr>
+        <tr><td>Wall conduction resistance R = t/k</td><td class="num">0.014 m²·K/W</td></tr>
+        <tr><td>Sheet-steel reference U</td><td class="num">5.50 W/(m²·K)</td></tr>
+        <tr><td>FRP effective U = 1/(1/5.5 + 0.014)</td><td class="num">5.11 W/(m²·K)</td></tr>
+        <tr><td><strong>Correction factor = U<sub>steel</sub>/U<sub>FRP</sub></strong></td><td class="num"><strong>1.077</strong>  (1.06–1.10)</td></tr>
+      </tbody>
+    </table>
+    <div class="warn">FRP is outside the official IEC TR 60890 scope (sheet-steel). The correction above is a first-order engineering adjustment. A conservative enclosure-industry rule-of-thumb for polyester (U ≈ 3.5 W/m²·K) would give a factor of 1.57 → ΔT top ≈ 24.5 K (internal top ≈ 74.5 °C). Confirm with the enclosure manufacturer's published thermal data.</div>
+  </div>
+
+  <div class="card">
+    <h2>IEC TR 60890 — Internal Air Temperature Rise (micro-environment)</h2>
+    <table>
+      <thead><tr><th>Surface</th><th class="num">Geometric (m²)</th><th class="num">Factor b</th><th class="num">Effective (m²)</th></tr></thead>
+      <tbody>
+        <tr><td>Top</td><td class="num">0.210</td><td class="num">1.4</td><td class="num">0.294</td></tr>
+        <tr><td>Bottom</td><td class="num">0.210</td><td class="num">0.5</td><td class="num">0.105</td></tr>
+        <tr><td>Front</td><td class="num">0.595</td><td class="num">0.9</td><td class="num">0.536</td></tr>
+        <tr><td>Rear</td><td class="num">0.595</td><td class="num">0.9</td><td class="num">0.536</td></tr>
+        <tr><td>Left</td><td class="num">0.255</td><td class="num">0.9</td><td class="num">0.230</td></tr>
+        <tr><td>Right</td><td class="num">0.255</td><td class="num">0.9</td><td class="num">0.230</td></tr>
+      </tbody>
+      <tfoot>
+        <tr><td><strong>Effective cooling surface Ae</strong></td><td class="num"></td><td class="num"></td><td class="num"><strong>1.929 m²</strong></td></tr>
+      </tfoot>
+    </table>
+    <div class="sub" style="margin:10px 0">k = 0.429 (vs Ae) · exponent x = 0.804 (non-ventilated) · distribution factor c = 1.274 (f = H/W = 1.214) · partition factor d = 1.0 · FRP factor 1.077</div>
+    <table>
+      <thead><tr><th>Quantity</th><th class="num">Steel base</th><th class="num">FRP (revised)</th></tr></thead>
+      <tbody>
+        <tr><td>ΔT air rise, bottom (Δt<sub>0</sub> ≈ 0)</td><td class="num">0.0 K</td><td class="num">0.0 K</td></tr>
+        <tr><td>Internal air temp, bottom (50 °C ambient)</td><td class="num">50.0 °C</td><td class="num">50.0 °C</td></tr>
+        <tr><td>ΔT air rise, mid-height (Δt<sub>0.5</sub>)</td><td class="num">12.24 K</td><td class="num"><strong>13.17 K</strong></td></tr>
+        <tr><td>Internal air temp, mid-height (50 °C ambient)</td><td class="num">62.2 °C</td><td class="num">63.2 °C</td></tr>
+        <tr><td>ΔT air rise, top (Δt<sub>1.0</sub>)</td><td class="num">15.60 K</td><td class="num"><strong>16.79 K</strong></td></tr>
+        <tr><td>Internal air temp, top (50 °C ambient)</td><td class="num">65.6 °C</td><td class="num"><strong>66.8 °C</strong></td></tr>
+      </tbody>
+    </table>
+    <div class="note">Vertical air stratification ≈ 50 °C (bottom) → 63.2 °C (mid) → 66.8 °C (top); IEC TR 60890 takes the internal air at the bottom as essentially ambient (rise ≈ 0 K).</div>
+    <div class="note">Wall-mounted (rear covered, b=0.5): Ae = 1.691 m², k = 0.449 → steel Δt<sub>1.0</sub> = 16.33 K → FRP ≈ 17.6 K, internal top ≈ 67.6 °C.</div>
+  </div>
+
+  <div class="card">
+    <h2>Individual Component Temperature Rise (first-order screening)</h2>
+    <p class="sub">Component temperature = ambient (50 °C) + internal-air rise (13.2 K) + local self-heating. Self-heating ≈ P / (h·A) with h = 10 W/(m²·K); cooling area A is an <b>assumed</b> estimate (not manufacturer data).</p>
+    <table>
+      <thead><tr><th>Component</th><th class="num">P (W)</th><th class="num">Est. A (m²)</th><th class="num">Self-rise (K)</th><th class="num">Total rise (K)</th><th class="num">Temp @ 50 °C (°C)</th></tr></thead>
+      <tbody>
+        <tr><td>Disconnect switch (2-pole 400 A)</td><td class="num">15.6</td><td class="num">0.05</td><td class="num">31.2</td><td class="num">44.4</td><td class="num">94.4</td></tr>
+        <tr><td>Fuse links (16 × 30 A gPV @ 50 % In)</td><td class="num">28.0</td><td class="num">0.06</td><td class="num">46.7</td><td class="num">59.8</td><td class="num">109.8</td></tr>
+        <tr><td>Bus bar (Cu)</td><td class="num">3.0</td><td class="num">0.08</td><td class="num">3.8</td><td class="num">16.9</td><td class="num">66.9</td></tr>
+        <tr><td>Solar cables (16 runs + lugs)</td><td class="num">16.0</td><td class="num">0.10</td><td class="num">16.0</td><td class="num">29.2</td><td class="num">79.2</td></tr>
+        <tr><td>Monitoring device</td><td class="num">2.0</td><td class="num">0.01</td><td class="num">20.0</td><td class="num">33.2</td><td class="num">83.2</td></tr>
+      </tbody>
+    </table>
+    <div class="warn"><b>Fuse value is overstated by the area model.</b> Published gPV data (e.g. ETI 20 A: 3.2 W at 20 A rated) implies a fuse <em>body</em> rise of ≈ 10–15 K at 50 % In (I²R ≈ 25 % of rated), i.e. ≈ 73–78 °C, not ~110 °C. Small hot components must use manufacturer dissipation-vs-rise curves.</div>
+  </div>
+
+  <div class="card">
+    <h2>Design-Verification Gates</h2>
+    <div class="verdict blocked">DESIGN VERIFICATION BLOCKED — essential evidence missing. Figures below are provisional screening only.</div>
+    <div class="gate no"><div class="ico">!</div><div><b>Complete populated assembly BOM</b><div class="g-detail">All lines carry a value, but bus-bar, cable, switch and monitoring figures are "approx." engineering estimates, not sourced from the installed BOM.</div></div></div>
+    <div class="gate no"><div class="ico">!</div><div><b>Loss values are datasheet-backed</b><div class="g-detail">0 % datasheet-backed (target ≥ 80 %). Every "approx." value must be replaced with manufacturer data.</div></div></div>
+    <div class="gate no"><div class="ico">!</div><div><b>Method applicability to FRP enclosure</b><div class="g-detail">IEC TR 60890 is calibrated for sheet-steel. The FRP correction (1.077) is an engineering adjustment, not a certified factor. Confirm enclosure thermal data before certified use.</div></div></div>
+  </div>
+
+  <div class="card">
+    <h2>Conclusion (screening)</h2>
+    <ul>
+      <li>Internal-air temperature rise (FRP): <b>13.2 K mid-height / 16.8 K top</b> → internal air peaks at <b>66.8 °C</b> at a 50 °C ambient.</li>
+      <li>Against the IEC 61439-1 typical <b>50 K</b> permissible rise (85 °C-class components), the 16.8 K top rise leaves ~33 K margin → <b>enclosure is thermally adequate</b> by calculation.</li>
+      <li>At 50 °C ambient with 85 °C-class devices, usable internal rise is 35 K; top rise 16.8 K leaves 18.2 K margin → still passes.</li>
+      <li>Component hot-spots (screening) range ≈ 67–94 °C; fuse estimate (~110 °C) is model-limited and resolves to ~73–78 °C using published gPV dissipation data.</li>
+      <li>FRP wall raises the rise by ~7 % over sheet-steel; a conservative polyester U ≈ 3.5 W/m²·K bound gives ΔT top ≈ 24.5 K (internal top ≈ 74.5 °C), still within limits.</li>
+      <li><b>Additional outdoor consideration:</b> an IP66 FRP box in a solar farm will also absorb direct solar irradiation (adds several watts to tens of watts) — not included here; add it to the loss total for a worst-case check.</li>
+      <li><b>Not a certified result.</b> Verification is <em>by calculation</em> per IEC TR 60890 (with FRP adjustment), not a laboratory type-test. Replace assumed losses and confirm enclosure thermal data to clear the gates.</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>Limitations</h2>
+    <ul>
+      <li>Temperature-rise verification <b>by calculation</b> (IEC TR 60890, referenced by IEC 61439-1); not a type-test certificate.</li>
+      <li>Table-driven factors (surface b, k/c curves, exponent) follow the published IEC method structure and must be reconciled against the licensed standard text.</li>
+      <li>FRP is outside the official 60890 scope; the 1.077 material correction is a first-order engineering adjustment based on U-steel = 5.5 W/(m²·K) and k-FRP = 0.25 W/(m·K).</li>
+      <li>Component temperature rises are first-order P/(h·A) screening estimates with assumed cooling areas; certified values require manufacturer device thermal data.</li>
+      <li>Solar irradiation on the enclosure and spare-string/SPD/joint losses are not included in the 64.6 W total.</li>
+    </ul>
+  </div>
+
+  <footer><a href="https://nebulacloud.studio">Built with NebulaCloud Studio</a></footer>
+</div>
+</body>
+</html>
